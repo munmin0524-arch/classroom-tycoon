@@ -1,65 +1,73 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="flex flex-col items-center justify-center min-h-screen px-4">
+      {/* Hero */}
+      <div className="text-center max-w-2xl mx-auto">
+        <h1 className="text-5xl font-bold tracking-tight mb-4">
+          교실 타이쿤
+        </h1>
+        <p className="text-xl text-muted-foreground mb-2">
+          AI 학급 경영 시뮬레이션
+        </p>
+        <p className="text-muted-foreground mb-8 leading-relaxed">
+          가상의 30명 학급을 맡아 매주 벌어지는 교실 상황에 의사결정을 내리세요.
+          <br />
+          AI가 결과를 시뮬레이션하고, 멘토가 피드백을 제공합니다.
+        </p>
+
+        <div className="flex gap-4 justify-center">
+          <Link href="/login">
+            <Button size="lg" className="text-lg px-8">
+              시작하기
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      {/* Features */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-4xl w-full">
+        <FeatureCard
+          emoji="🏫"
+          title="가상 학급 경영"
+          description="30명의 개성 있는 학생들로 구성된 학급을 맡아 한 학기를 운영하세요."
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+        <FeatureCard
+          emoji="🧠"
+          title="AI 시뮬레이션"
+          description="당신의 결정에 따라 학생들이 현실적으로 반응합니다. 정답은 없습니다."
+        />
+        <FeatureCard
+          emoji="📈"
+          title="성장하는 교실"
+          description="학급 레벨을 올리고, 교실을 꾸미고, 교사 유형을 발견하세요."
+        />
+      </div>
+
+      {/* Footer */}
+      <footer className="mt-20 mb-8 text-sm text-muted-foreground">
+        교사를 위한, 교사에 의한 시뮬레이션
+      </footer>
+    </main>
+  );
+}
+
+function FeatureCard({
+  emoji,
+  title,
+  description,
+}: {
+  emoji: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="border rounded-xl p-6 text-center hover:border-foreground/20 transition-colors">
+      <div className="text-4xl mb-3">{emoji}</div>
+      <h3 className="font-semibold text-lg mb-2">{title}</h3>
+      <p className="text-sm text-muted-foreground">{description}</p>
     </div>
   );
 }
