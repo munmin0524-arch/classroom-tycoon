@@ -69,7 +69,7 @@ export function PixelBackground({ region }: PixelBackgroundProps) {
 
         {/* Clock */}
         <div
-          className="absolute"
+          className="absolute z-[4]"
           style={{
             top: "5%",
             right: "8%",

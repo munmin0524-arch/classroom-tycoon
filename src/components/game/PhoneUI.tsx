@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { useGameStore } from "@/stores/gameStore";
 import { StudentRoster } from "./phone/StudentRoster";
 import { Notifications } from "./phone/Notifications";
@@ -68,18 +68,10 @@ function PhoneHome() {
       <div className="text-center text-yellow-300 pixel-text text-sm mb-4">교실 타이쿤</div>
       <div className="grid grid-cols-3 gap-2">
         {apps.map((app) => (
-          <div
-            key={app.id}
-            className="phone-app-icon"
-            onClick={() => setPhoneApp(app.id)}
-          >
-            <div className="phone-app-icon-box" style={{ background: app.bg }}>
-              {app.icon}
-            </div>
+          <div key={app.id} className="phone-app-icon" onClick={() => setPhoneApp(app.id)}>
+            <div className="phone-app-icon-box" style={{ background: app.bg }}>{app.icon}</div>
             {app.badge && app.badge > 0 && (
-              <div
-                className="absolute -top-0.5 right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[8px] text-white font-bold"
-              >
+              <div className="absolute -top-0.5 right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[8px] text-white font-bold">
                 {app.badge}
               </div>
             )}
@@ -93,7 +85,6 @@ function PhoneHome() {
 
 function PhoneScreen() {
   const { phoneApp } = useGameStore();
-
   switch (phoneApp) {
     case "roster": return <StudentRoster />;
     case "notifications": return <Notifications />;
@@ -105,79 +96,68 @@ function PhoneScreen() {
   }
 }
 
-export function PhoneToggleButton() {
-  const { togglePhone, phoneOpen, activeEventStudentIds } = useGameStore();
+/**
+ * Phone Peek System:
+ * - Collapsed: only top 40px of phone peeking from right edge
+ * - Expanded: full phone slides in
+ */
+export function PhonePeek() {
+  const { phoneOpen, togglePhone, activeEventStudentIds, setPhoneApp } = useGameStore();
   const notifCount = activeEventStudentIds.length;
 
   return (
-    <button
-      onClick={togglePhone}
-      className="fixed bottom-6 right-6 z-30 flex items-center gap-3 cursor-pointer group"
-      style={{
-        background: phoneOpen ? "#1a4a8a" : "#1a1a3a",
-        border: `3px solid ${phoneOpen ? "#4488cc" : "#555577"}`,
-        padding: "10px 20px",
-        boxShadow: phoneOpen
-          ? "0 0 16px rgba(68, 136, 204, 0.4), 0 4px 0 #0a0a1a"
-          : "0 0 12px rgba(100, 200, 255, 0.2), 0 4px 0 #0a0a1a",
-        transition: "all 0.15s",
-      }}
-    >
-      <span className="text-2xl">📱</span>
-      <div className="flex flex-col items-start">
-        <span className="pixel-text text-sm text-white">{phoneOpen ? "닫기" : "교사 폰"}</span>
-        {notifCount > 0 && !phoneOpen && (
-          <span className="text-[9px] text-red-300 pixel-text">알림 {notifCount}건</span>
-        )}
-      </div>
-      {notifCount > 0 && !phoneOpen && (
-        <span className="absolute -top-3 -right-3 w-7 h-7 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-bold animate-exclamation"
-          style={{ boxShadow: "0 0 8px rgba(239, 68, 68, 0.6)" }}
-        >
-          {notifCount}
-        </span>
-      )}
-    </button>
-  );
-}
-
-export function PhoneOverlay() {
-  const { phoneOpen, setPhoneApp } = useGameStore();
-
-  return (
-    <AnimatePresence>
-      {phoneOpen && (
-        <motion.div
-          initial={{ x: 320, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: 320, opacity: 0 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className="fixed z-40"
+    <div className="fixed z-40" style={{ right: 0, top: "50%", transform: "translateY(-50%)" }}>
+      <motion.div
+        animate={{ x: phoneOpen ? 0 : 260 }}
+        transition={{ duration: 0.35, ease: "easeInOut" }}
+        style={{ width: 300 }}
+      >
+        {/* Peek tab (always visible) */}
+        <div
+          onClick={togglePhone}
+          className="cursor-pointer flex items-center justify-between px-3 py-2"
           style={{
-            right: 24,
-            top: "50%",
-            transform: "translateY(-50%)",
+            background: "#111118",
+            border: "2px solid #333",
+            borderRight: "none",
+            borderRadius: "10px 0 0 0",
+            borderBottom: phoneOpen ? "none" : "2px solid #333",
           }}
         >
-          <div className="phone-frame">
-            {/* Status bar */}
-            <div className="phone-statusbar">
-              <span className="pixel-text">9:00</span>
-              <span className="pixel-text">▂▅ LTE</span>
-            </div>
-
-            {/* Screen */}
-            <div className="phone-screen">
-              <PhoneScreen />
-            </div>
-
-            {/* Home button */}
-            <div className="phone-home-btn">
-              <button onClick={() => setPhoneApp("home")} />
-            </div>
+          <div className="flex items-center gap-2">
+            <span className="text-base">📱</span>
+            <span className="pixel-text text-xs text-gray-300">교사 폰</span>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          {notifCount > 0 && (
+            <span
+              className="px-2 py-0.5 text-[10px] text-white font-bold pixel-text rounded-full animate-resource-flash"
+              style={{ background: "#dc2626" }}
+            >
+              {notifCount}건
+            </span>
+          )}
+          <span className="text-gray-500 text-xs ml-2">{phoneOpen ? "▶" : "◀"}</span>
+        </div>
+
+        {/* Full phone body */}
+        <div className="phone-frame" style={{ borderRadius: "0 0 0 20px", borderTop: "none" }}>
+          {/* Status bar */}
+          <div className="phone-statusbar">
+            <span className="pixel-text">9:00</span>
+            <span className="pixel-text">▂▅ LTE</span>
+          </div>
+
+          {/* Screen */}
+          <div className="phone-screen">
+            <PhoneScreen />
+          </div>
+
+          {/* Home button */}
+          <div className="phone-home-btn">
+            <button onClick={() => setPhoneApp("home")} />
+          </div>
+        </div>
+      </motion.div>
+    </div>
   );
 }

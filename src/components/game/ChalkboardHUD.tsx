@@ -13,11 +13,7 @@ function getTrend(current: number, previous: number | undefined): { arrow: strin
   return { arrow: "→", cls: "" };
 }
 
-interface ChalkChangeProps {
-  changes: Partial<Resources> | null;
-}
-
-function ChalkChanges({ changes }: ChalkChangeProps) {
+function ChalkChanges({ changes }: { changes: Partial<Resources> | null }) {
   const [visible, setVisible] = useState(false);
   const [erasing, setErasing] = useState(false);
 
@@ -38,11 +34,11 @@ function ChalkChanges({ changes }: ChalkChangeProps) {
   };
 
   return (
-    <div className={`mt-1 flex gap-3 flex-wrap ${erasing ? "animate-chalk-erase" : "animate-chalk-write"}`}>
+    <div className={`mt-2 flex gap-3 flex-wrap ${erasing ? "animate-chalk-erase" : "animate-chalk-write"}`}>
       {Object.entries(changes).map(([key, val]) => {
         if (!val || val === 0) return null;
         return (
-          <span key={key} className={`text-[10px] ${val > 0 ? "chalk-text-green" : "chalk-text-red"}`}>
+          <span key={key} className={`text-base ${val > 0 ? "chalk-text-green" : "chalk-text-red"}`}>
             {labels[key]} {val > 0 ? `+${val}` : val}
           </span>
         );
@@ -69,33 +65,33 @@ export function ChalkboardHUD() {
 
   return (
     <div
-      className="absolute z-10 pointer-events-none"
+      className="absolute z-[3] pointer-events-none"
       style={{
-        top: "12%",
-        left: "37%",
-        width: "42%",
-        height: "58%",
-        padding: "12px 16px",
+        top: "11%",
+        left: "36%",
+        width: "43%",
+        height: "55%",
+        padding: "14px 20px",
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-start",
       }}
     >
       {/* Line 1: Week + Level */}
-      <div className="flex justify-between items-center mb-1">
-        <span className="chalk-text text-[11px]">
-          {currentWeek}주차 <span className="text-[9px] opacity-60">/ 40</span>
+      <div className="flex justify-between items-center mb-2">
+        <span className="chalk-text text-base">
+          {currentWeek}주차 <span className="text-sm opacity-60">/ 40</span>
         </span>
-        <span className="chalk-text-yellow text-[10px]">
+        <span className="chalk-text-yellow text-sm">
           {[1, 2, 3, 4, 5].map((lv) => (
             <span key={lv} style={{ opacity: lv <= classLevel ? 1 : 0.25 }}>★</span>
           ))}
-          <span className="ml-1 text-[9px] opacity-80">{levelInfo?.name}</span>
+          <span className="ml-1 opacity-80">{levelInfo?.name}</span>
         </span>
       </div>
 
       {/* Line 2: Resources with trends */}
-      <div className="flex gap-3 flex-wrap mb-1">
+      <div className="flex gap-4 flex-wrap mb-2">
         {bars.map((bar) => {
           const val = resources[bar.key];
           const prev = previousResources?.[bar.key];
@@ -104,11 +100,9 @@ export function ChalkboardHUD() {
           return (
             <span
               key={bar.key}
-              className={`text-[10px] ${isDanger ? "chalk-text-red animate-resource-flash" : bar.cls}`}
+              className={`text-sm ${isDanger ? "chalk-text-red animate-resource-flash" : bar.cls}`}
             >
-              {bar.label}
-              <span className={trend.cls}>{trend.arrow}</span>
-              {val}
+              {bar.label}<span className={trend.cls}>{trend.arrow}</span>{val}
             </span>
           );
         })}
@@ -116,13 +110,11 @@ export function ChalkboardHUD() {
 
       {/* Line 3: TP + Events */}
       <div className="flex justify-between items-center">
-        <span className="chalk-text-yellow text-[10px]">{tycoonPoints}TP</span>
+        <span className="chalk-text-yellow text-sm">{tycoonPoints}TP</span>
         {eventCount > 0 ? (
-          <span className="chalk-text-red text-[10px] animate-resource-flash">
-            {eventCount}건 발생!
-          </span>
+          <span className="chalk-text-red text-sm animate-resource-flash">{eventCount}건 발생!</span>
         ) : (
-          <span className="chalk-text-green text-[9px] opacity-70">평화로운 교실</span>
+          <span className="chalk-text-green text-xs opacity-70">평화로운 교실</span>
         )}
       </div>
 

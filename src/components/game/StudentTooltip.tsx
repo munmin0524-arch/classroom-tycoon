@@ -14,10 +14,9 @@ export function StudentProximityChecker() {
     if (teacherMoving) return;
 
     // Check proximity to each student seat
-    // Seats are positioned in a 5x3 grid, we need approximate positions
-    // The SeatMap is centered at ~50%, 45% with gaps
+    // Seats are positioned in a 5x3 grid centered at 50%, 55% with -20% transform
     const seatMapLeft = window.innerWidth * 0.5 - (5 * 112) / 2;
-    const seatMapTop = window.innerHeight * 0.45 - (3 * 124) * 0.3;
+    const seatMapTop = window.innerHeight * 0.55 - (3 * 124) * 0.2;
 
     let closestId: string | null = null;
     let closestDist = PROXIMITY;
@@ -65,7 +64,7 @@ export function StudentTooltip() {
       className="fixed z-[8] animate-fade-in pointer-events-none"
       style={{
         left: `calc(50% - ${(5 * 112) / 2 - col * 112 - 40}px)`,
-        top: `calc(45% - ${(3 * 124) * 0.3 - row * 124 - 10}px)`,
+        top: `calc(55% - ${(3 * 124) * 0.2 - row * 124 - 10}px)`,
         transform: "translate(-50%, -100%)",
       }}
     >

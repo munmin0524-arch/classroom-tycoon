@@ -95,21 +95,25 @@ export function TeacherCharacter() {
 
 /** Invisible click area for the floor to move teacher */
 export function FloorClickArea() {
-  const { moveTeacher, showDialog, zoomPhase } = useGameStore();
+  const { moveTeacher, showDialog, zoomPhase, phoneOpen } = useGameStore();
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (showDialog || zoomPhase !== "idle") return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    moveTeacher(x, y);
+    if (showDialog || zoomPhase !== "idle" || phoneOpen) return;
+    const x = e.clientX;
+    const y = e.clientY;
+    // Clamp to floor area (no walking through walls)
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const clampedX = Math.max(w * 0.08, Math.min(w * 0.88, x));
+    const clampedY = Math.max(h * 0.42, Math.min(h * 0.92, y));
+    moveTeacher(clampedX, clampedY);
   };
 
   return (
     <div
-      className="absolute inset-0 z-[2] cursor-crosshair"
+      className="absolute z-[15] cursor-crosshair"
       onClick={handleClick}
-      style={{ top: "40%" }} // Only the floor area is clickable
+      style={{ left: 0, right: 0, top: "40%", bottom: 0 }}
     />
   );
 }

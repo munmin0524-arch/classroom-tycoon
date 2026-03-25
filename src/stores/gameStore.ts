@@ -362,7 +362,14 @@ export const useGameStore = create<GameState>((set, get) => ({
     setTimeout(() => get().triggerEvent(studentId), 200);
   },
   dismissEventBanner: () => set({ showEventBanner: false }),
-  moveTeacher: (x, y) => set({ teacherTarget: { x, y }, teacherMoving: true, nearbyStudentId: null }),
+  moveTeacher: (x, y) => {
+    // Clamp to floor area bounds
+    const w = typeof window !== "undefined" ? window.innerWidth : 1200;
+    const h = typeof window !== "undefined" ? window.innerHeight : 800;
+    const cx = Math.max(w * 0.08, Math.min(w * 0.88, x));
+    const cy = Math.max(h * 0.42, Math.min(h * 0.92, y));
+    set({ teacherTarget: { x: cx, y: cy }, teacherMoving: true, nearbyStudentId: null });
+  },
   updateTeacherPos: (x, y) => set({ teacherPos: { x, y } }),
   setTeacherArrived: () => set({ teacherMoving: false, teacherTarget: null }),
   setNearbyStudent: (id) => set({ nearbyStudentId: id }),

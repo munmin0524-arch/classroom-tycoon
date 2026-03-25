@@ -19,9 +19,9 @@ export function SeatMap({ students, activeEventStudentIds, onStudentEvent }: Sea
     <div
       className="absolute"
       style={{
-        top: "45%",
+        top: "55%",
         left: "50%",
-        transform: "translate(-50%, -30%)",
+        transform: "translate(-50%, -20%)",
         display: "grid",
         gridTemplateColumns: `repeat(${cols}, 1fr)`,
         gap: "24px 32px",
