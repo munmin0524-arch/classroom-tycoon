@@ -112,16 +112,28 @@ export function PhoneToggleButton() {
   return (
     <button
       onClick={togglePhone}
-      className="fixed bottom-6 right-6 z-30 pixel-button px-3 py-2 flex items-center gap-2"
+      className="fixed bottom-6 right-6 z-30 flex items-center gap-3 cursor-pointer group"
       style={{
-        background: phoneOpen ? "#1a4a8a" : "#2a2a4a",
-        borderColor: phoneOpen ? "#4488cc" : "#666688",
+        background: phoneOpen ? "#1a4a8a" : "#1a1a3a",
+        border: `3px solid ${phoneOpen ? "#4488cc" : "#555577"}`,
+        padding: "10px 20px",
+        boxShadow: phoneOpen
+          ? "0 0 16px rgba(68, 136, 204, 0.4), 0 4px 0 #0a0a1a"
+          : "0 0 12px rgba(100, 200, 255, 0.2), 0 4px 0 #0a0a1a",
+        transition: "all 0.15s",
       }}
     >
-      <span className="text-lg">📱</span>
-      <span className="pixel-text text-xs">{phoneOpen ? "닫기" : "폰"}</span>
+      <span className="text-2xl">📱</span>
+      <div className="flex flex-col items-start">
+        <span className="pixel-text text-sm text-white">{phoneOpen ? "닫기" : "교사 폰"}</span>
+        {notifCount > 0 && !phoneOpen && (
+          <span className="text-[9px] text-red-300 pixel-text">알림 {notifCount}건</span>
+        )}
+      </div>
       {notifCount > 0 && !phoneOpen && (
-        <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-[9px] text-white font-bold animate-pixel-pulse">
+        <span className="absolute -top-3 -right-3 w-7 h-7 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-bold animate-exclamation"
+          style={{ boxShadow: "0 0 8px rgba(239, 68, 68, 0.6)" }}
+        >
           {notifCount}
         </span>
       )}

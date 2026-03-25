@@ -44,11 +44,15 @@ interface GameState {
   phoneApp: "home" | "roster" | "notifications" | "resources" | "history" | "classinfo" | "nextweek" | null;
   phoneSelectedStudentId: string | null;
 
+  // Tutorial
+  tutorialStep: number | null; // 0,1,2 = active steps, null = done
+
   // Actions
   togglePhone: () => void;
   setPhoneApp: (app: GameState["phoneApp"]) => void;
   setPhoneSelectedStudent: (id: string | null) => void;
   triggerEventFromPhone: (studentId: string) => void;
+  nextTutorialStep: () => void;
   initGame: (sessionId: string, region?: Region, schoolType?: SchoolType, grade?: number) => void;
   advanceWeek: () => void;
   completeTransition: () => void;
@@ -95,6 +99,7 @@ const initialState = {
   phoneOpen: false,
   phoneApp: null as GameState["phoneApp"],
   phoneSelectedStudentId: null as string | null,
+  tutorialStep: 0 as number | null,
 };
 
 // Select eligible events for a given week
@@ -320,9 +325,16 @@ export const useGameStore = create<GameState>((set, get) => ({
   setPhoneApp: (app) => set({ phoneApp: app, phoneSelectedStudentId: null }),
   setPhoneSelectedStudent: (id) => set({ phoneSelectedStudentId: id }),
   triggerEventFromPhone: (studentId) => {
-    // Close phone, then trigger event
     set({ phoneOpen: false, phoneApp: null, phoneSelectedStudentId: null });
-    // Small delay so phone closes before zoom starts
     setTimeout(() => get().triggerEvent(studentId), 200);
+  },
+  nextTutorialStep: () => {
+    const state = get();
+    if (state.tutorialStep === null) return;
+    if (state.tutorialStep >= 2) {
+      set({ tutorialStep: null });
+    } else {
+      set({ tutorialStep: state.tutorialStep + 1 });
+    }
   },
 }));

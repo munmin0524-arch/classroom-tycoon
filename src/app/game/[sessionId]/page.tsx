@@ -9,6 +9,7 @@ import { SeatMap } from "@/components/classroom/SeatMap";
 import { DialogBox } from "@/components/game/DialogBox";
 import { WeekTransition } from "@/components/game/WeekTransition";
 import { PhoneToggleButton, PhoneOverlay } from "@/components/game/PhoneUI";
+import { TutorialOverlay } from "@/components/game/TutorialOverlay";
 import { CLASS_LEVELS } from "@/types";
 import { GAMEOVER_MESSAGES } from "@/lib/game/engine";
 import type { Region, SchoolType, GameoverType } from "@/types";
@@ -193,6 +194,9 @@ export default function GamePage() {
           isActive={isTransitioning}
           onComplete={completeTransition}
         />
+
+        {/* Tutorial overlay */}
+        <TutorialOverlay />
 
         {/* Game Over / Completion Overlays */}
         {status === "gameover" && <GameOverScreen />}

@@ -165,6 +165,79 @@ export function generateCharacterShadow(data: CharacterData, emotion: Emotion): 
   return pixels.join(",");
 }
 
+// Teacher character (14x20 grid - slightly taller than students)
+export function generateTeacherShadow(): string {
+  const pixels: string[] = [];
+  const hairColor = "#2a1a0a";
+  const skinColor = "#E8B88A";
+  const suitColor = "#1a2a1a";
+  const shirtColor = "#ffffff";
+  const tieColor = "#8b2020";
+  const glassColor = "#555555";
+  const eyeColor = "#1a1a1a";
+
+  const px = (x: number, y: number, color: string) => {
+    pixels.push(`${x}px ${y}px 0 ${color}`);
+  };
+
+  // Hair (rows 0-3)
+  for (let x = 4; x <= 9; x++) px(x, 0, hairColor);
+  for (let x = 3; x <= 10; x++) px(x, 1, hairColor);
+  for (let x = 3; x <= 10; x++) px(x, 2, hairColor);
+  px(3, 3, hairColor); px(10, 3, hairColor);
+
+  // Face (rows 3-7)
+  for (let y = 3; y <= 7; y++) {
+    for (let x = 4; x <= 9; x++) px(x, y, skinColor);
+  }
+
+  // Glasses
+  px(4, 5, glassColor); px(5, 5, glassColor); px(6, 5, glassColor);
+  px(7, 5, glassColor); px(8, 5, glassColor); px(9, 5, glassColor);
+  // Eyes behind glasses
+  px(5, 5, eyeColor); px(8, 5, eyeColor);
+  // Smile
+  px(6, 6, "#c0522d"); px(7, 6, "#c0522d");
+
+  // Collar + Tie (row 8)
+  for (let x = 4; x <= 9; x++) px(x, 8, shirtColor);
+  px(6, 8, tieColor); px(7, 8, tieColor);
+
+  // Suit body (rows 9-14)
+  for (let y = 9; y <= 14; y++) {
+    for (let x = 3; x <= 10; x++) px(x, y, suitColor);
+    // Shirt/tie line
+    px(6, y, y <= 12 ? tieColor : suitColor);
+    px(7, y, y <= 12 ? tieColor : suitColor);
+  }
+  // Suit arms
+  for (let y = 9; y <= 13; y++) {
+    px(2, y, suitColor); px(11, y, suitColor);
+  }
+  // Hands
+  px(2, 14, skinColor); px(11, 14, skinColor);
+  // Book in hand
+  px(11, 13, "#8b4513"); px(12, 13, "#8b4513"); px(13, 13, "#8b4513");
+  px(11, 14, "#8b4513"); px(12, 14, "#8b4513"); px(13, 14, "#8b4513");
+  px(12, 12, "#8b4513"); px(13, 12, "#8b4513");
+
+  // Pants (rows 15-17)
+  const pantsColor = "#0a0a2a";
+  for (let y = 15; y <= 17; y++) {
+    px(4, y, pantsColor); px(5, y, pantsColor);
+    px(6, y, pantsColor); px(7, y, pantsColor);
+    px(8, y, pantsColor); px(9, y, pantsColor);
+  }
+
+  // Shoes (rows 18-19)
+  px(3, 18, "#1a1a1a"); px(4, 18, "#1a1a1a"); px(5, 18, "#1a1a1a");
+  px(8, 18, "#1a1a1a"); px(9, 18, "#1a1a1a"); px(10, 18, "#1a1a1a");
+  px(3, 19, "#1a1a1a"); px(4, 19, "#1a1a1a"); px(5, 19, "#1a1a1a");
+  px(8, 19, "#1a1a1a"); px(9, 19, "#1a1a1a"); px(10, 19, "#1a1a1a");
+
+  return pixels.join(",");
+}
+
 // Get emotion from happiness/stress scores
 export function getEmotion(happiness: number, stress: number): Emotion {
   const score = happiness - stress;

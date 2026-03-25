@@ -3,7 +3,8 @@
 import type { StudentProfile } from "@/types";
 import { PixelCharacter } from "@/components/pixel/PixelCharacter";
 import { ExclamationMark } from "@/components/game/ExclamationMark";
-import { CHARACTER_DATA } from "@/lib/pixel-art/characters";
+import { CHARACTER_DATA, generateTeacherShadow } from "@/lib/pixel-art/characters";
+import { useMemo } from "react";
 
 interface SeatMapProps {
   students: (StudentProfile & { id: string; seatNumber: number })[];
@@ -14,6 +15,7 @@ interface SeatMapProps {
 export function SeatMap({ students, activeEventStudentIds, onStudentEvent }: SeatMapProps) {
   const cols = 5;
   const rows = 3;
+  const teacherShadow = useMemo(() => generateTeacherShadow(), []);
 
   return (
     <div
@@ -89,18 +91,39 @@ export function SeatMap({ students, activeEventStudentIds, onStudentEvent }: Sea
         );
       })}
 
-      {/* Teacher's desk at the front */}
-      <div
-        className="absolute -top-20 left-1/2 -translate-x-1/2"
-        style={{
-          width: 120,
-          height: 30,
-          background: "color-mix(in srgb, var(--classroom-desk) 80%, white)",
-          border: "3px solid rgba(0,0,0,0.3)",
-          borderTop: "3px solid rgba(255,255,255,0.15)",
-          boxShadow: "0 3px 6px rgba(0,0,0,0.3)",
-        }}
-      />
+      {/* Teacher's desk + teacher character */}
+      <div className="absolute -top-24 left-1/2 -translate-x-1/2 flex items-end gap-3">
+        {/* Teacher character */}
+        <div className="relative pixel-art" style={{ width: 14 * 3, height: 20 * 3 }}>
+          <div
+            style={{
+              width: 1,
+              height: 1,
+              boxShadow: teacherShadow,
+              transform: "scale(3)",
+              transformOrigin: "top left",
+            }}
+          />
+          <div
+            className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] px-1 pixel-text"
+            style={{ color: "#ffd700", background: "rgba(0,0,0,0.7)", border: "1px solid rgba(255,215,0,0.3)" }}
+          >
+            선생님
+          </div>
+        </div>
+        {/* Desk */}
+        <div
+          style={{
+            width: 120,
+            height: 30,
+            background: "color-mix(in srgb, var(--classroom-desk) 80%, white)",
+            border: "3px solid rgba(0,0,0,0.3)",
+            borderTop: "3px solid rgba(255,255,255,0.15)",
+            boxShadow: "0 3px 6px rgba(0,0,0,0.3)",
+            marginBottom: 4,
+          }}
+        />
+      </div>
     </div>
   );
 }
