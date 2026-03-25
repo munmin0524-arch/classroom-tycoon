@@ -47,6 +47,15 @@ interface GameState {
   // Tutorial
   tutorialStep: number | null; // 0,1,2 = active steps, null = done
 
+  // HUD state
+  previousResources: Resources | null;
+  lastResourceChanges: Partial<Resources> | null;
+  showEventBanner: boolean;
+  eventBannerCount: number;
+
+  // HUD actions
+  dismissEventBanner: () => void;
+
   // Actions
   togglePhone: () => void;
   setPhoneApp: (app: GameState["phoneApp"]) => void;
@@ -100,6 +109,10 @@ const initialState = {
   phoneApp: null as GameState["phoneApp"],
   phoneSelectedStudentId: null as string | null,
   tutorialStep: 0 as number | null,
+  previousResources: null as Resources | null,
+  lastResourceChanges: null as Partial<Resources> | null,
+  showEventBanner: false,
+  eventBannerCount: 0,
 };
 
 // Select eligible events for a given week
@@ -196,6 +209,11 @@ export const useGameStore = create<GameState>((set, get) => ({
       dialogStudentId: null,
       zoomTarget: null,
       zoomPhase: "idle",
+      // HUD: save previous resources for trend arrows + show event banner
+      previousResources: { ...state.resources },
+      lastResourceChanges: null,
+      showEventBanner: true,
+      eventBannerCount: activeStudentIds.length,
     });
   },
 
@@ -283,6 +301,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       activeEventStudentIds,
       showDialog: true,
       pendingGameover,
+      lastResourceChanges: outcome.resourceChanges,
       ...(gameoverCheck ? { status: "gameover", gameoverType: gameoverCheck } : {}),
     });
   },
@@ -328,6 +347,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({ phoneOpen: false, phoneApp: null, phoneSelectedStudentId: null });
     setTimeout(() => get().triggerEvent(studentId), 200);
   },
+  dismissEventBanner: () => set({ showEventBanner: false }),
   nextTutorialStep: () => {
     const state = get();
     if (state.tutorialStep === null) return;
