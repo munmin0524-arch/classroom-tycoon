@@ -2,22 +2,22 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type SchoolType = "elementary" | "middle" | "high";
 type Region = "urban" | "rural" | "newtown";
 
 const SCHOOL_OPTIONS = [
-  { value: "elementary" as SchoolType, label: "초등학교", emoji: "🏫", grades: [1, 2, 3, 4, 5, 6] },
-  { value: "middle" as SchoolType, label: "중학교", emoji: "🏢", grades: [1, 2, 3] },
-  { value: "high" as SchoolType, label: "고등학교", emoji: "🏛️", grades: [1, 2, 3] },
+  { value: "elementary" as SchoolType, label: "초등학교", icon: "■■", grades: [1, 2, 3, 4, 5, 6] },
+  { value: "middle" as SchoolType, label: "중학교", icon: "■■■", grades: [1, 2, 3] },
+  { value: "high" as SchoolType, label: "고등학교", icon: "■■■■", grades: [1, 2, 3] },
 ];
 
+const ALL_GRADES = [1, 2, 3, 4, 5, 6];
+
 const REGION_OPTIONS = [
-  { value: "urban" as Region, label: "도시", emoji: "🌆" },
-  { value: "rural" as Region, label: "농촌/읍면", emoji: "🌾" },
-  { value: "newtown" as Region, label: "신도시", emoji: "🏗️" },
+  { value: "urban" as Region, label: "도시", desc: "균형 잡힌 기본 난이도", color: "#4a90d9" },
+  { value: "rural" as Region, label: "농촌/읍면", desc: "자원 부족, 높은 난이도", color: "#7cb342" },
+  { value: "newtown" as Region, label: "신도시", desc: "학부모 민원 가중", color: "#e91e63" },
 ];
 
 export default function NewGamePage() {
@@ -28,119 +28,108 @@ export default function NewGamePage() {
   const [isCreating, setIsCreating] = useState(false);
 
   const selectedSchool = SCHOOL_OPTIONS.find((s) => s.value === schoolType);
+  const availableGrades = selectedSchool?.grades ?? [];
+  const canStart = schoolType && grade;
 
   const handleCreate = () => {
-    if (!schoolType || !grade) return;
+    if (!canStart) return;
     setIsCreating(true);
-
-    // 더미 데이터 모드: API 호출 없이 바로 게임 시작
     const sessionId = crypto.randomUUID();
     setTimeout(() => {
-      router.push(`/game/${sessionId}`);
-    }, 1500); // 로딩 느낌 연출
+      router.push(`/game/${sessionId}?region=${region}&schoolType=${schoolType}&grade=${grade}`);
+    }, 1200);
   };
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-2">새 게임 시작</h1>
-      <p className="text-muted-foreground mb-8">학급 설정을 선택하세요</p>
+    <main className="h-screen flex items-center justify-center p-4" style={{ background: "#1a1a2e" }}>
+      <div className="pixel-border p-8 w-full max-w-lg" style={{ background: "rgba(10, 10, 30, 0.95)" }}>
+        <h1 className="text-2xl text-center pixel-text text-yellow-300 mb-2">교실 타이쿤</h1>
+        <p className="text-center text-gray-400 text-sm mb-6">학급 설정을 선택하세요</p>
 
-      {/* 학교 유형 */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="text-lg">학교 유형</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-3">
+        {/* School Type - 항상 표시 */}
+        <div className="mb-5">
+          <div className="text-sm text-gray-300 pixel-text mb-2">학교 유형</div>
+          <div className="grid grid-cols-3 gap-2">
             {SCHOOL_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => { setSchoolType(opt.value); setGrade(null); }}
-                className={`p-4 rounded-lg border-2 text-center transition-colors ${
-                  schoolType === opt.value
-                    ? "border-foreground bg-foreground/5"
-                    : "border-border hover:border-foreground/30"
+                className={`pixel-button text-center py-3 ${
+                  schoolType === opt.value ? "pixel-button-primary" : ""
                 }`}
               >
-                <div className="text-3xl mb-1">{opt.emoji}</div>
-                <div className="font-medium">{opt.label}</div>
+                <div className="text-xs text-gray-500 mb-1">{opt.icon}</div>
+                <div className="text-sm">{opt.label}</div>
               </button>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* 학년 */}
-      {selectedSchool && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-lg">학년</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-3 flex-wrap">
-              {selectedSchool.grades.map((g) => (
+        {/* Grade - 항상 표시, 선택 불가능한 학년은 비활성화 */}
+        <div className="mb-5">
+          <div className="text-sm text-gray-300 pixel-text mb-2">학년</div>
+          <div className="flex gap-2 flex-wrap">
+            {ALL_GRADES.map((g) => {
+              const isAvailable = availableGrades.includes(g);
+              return (
                 <button
                   key={g}
-                  onClick={() => setGrade(g)}
-                  className={`w-16 h-16 rounded-lg border-2 text-center font-semibold text-lg transition-colors ${
-                    grade === g
-                      ? "border-foreground bg-foreground/5"
-                      : "border-border hover:border-foreground/30"
-                  }`}
+                  onClick={() => isAvailable && setGrade(g)}
+                  disabled={!isAvailable}
+                  className={`pixel-button w-14 h-14 text-center ${
+                    grade === g ? "pixel-button-primary" : ""
+                  } ${!isAvailable ? "opacity-20 cursor-not-allowed" : ""}`}
                 >
-                  {g}학년
+                  <div className="text-lg">{g}</div>
+                  <div className="text-[8px] text-gray-500">학년</div>
                 </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+              );
+            })}
+          </div>
+        </div>
 
-      {/* 지역 */}
-      {grade && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-lg">지역 특성</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-3">
-              {REGION_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => setRegion(opt.value)}
-                  className={`p-4 rounded-lg border-2 text-center transition-colors ${
-                    region === opt.value
-                      ? "border-foreground bg-foreground/5"
-                      : "border-border hover:border-foreground/30"
-                  }`}
-                >
-                  <div className="text-2xl mb-1">{opt.emoji}</div>
-                  <div className="text-sm font-medium">{opt.label}</div>
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+        {/* Region - 항상 표시 */}
+        <div className="mb-6">
+          <div className="text-sm text-gray-300 pixel-text mb-2">지역 특성</div>
+          <div className="grid grid-cols-3 gap-2">
+            {REGION_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setRegion(opt.value)}
+                className={`pixel-button text-center py-3 ${
+                  region === opt.value ? "pixel-button-primary" : ""
+                }`}
+              >
+                <div
+                  className="w-3 h-3 mx-auto mb-1"
+                  style={{ background: opt.color }}
+                />
+                <div className="text-sm">{opt.label}</div>
+                <div className="text-[8px] text-gray-500 mt-1">{opt.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
 
-      {/* 시작 버튼 */}
-      {schoolType && grade && (
-        <Button
+        {/* Create Button - 항상 표시, 미선택 시 비활성화 */}
+        <button
           onClick={handleCreate}
-          disabled={isCreating}
-          size="lg"
-          className="w-full text-lg py-6"
+          disabled={!canStart || isCreating}
+          className={`pixel-button w-full py-4 text-center text-lg ${
+            canStart ? "pixel-button-primary" : "opacity-30 cursor-not-allowed"
+          } ${isCreating ? "opacity-60 cursor-not-allowed" : ""}`}
         >
           {isCreating ? (
-            <span className="flex items-center gap-2">
-              <span className="animate-spin">🎲</span>
-              AI가 30명의 학생을 만들고 있어요...
+            <span className="animate-pixel-pulse inline-block">
+              15명의 학생을 배치하는 중...
             </span>
+          ) : canStart ? (
+            `${selectedSchool?.label} ${grade}학년 시작`
           ) : (
-            `${selectedSchool?.label} ${grade}학년 학급 시작!`
+            "학교와 학년을 선택하세요"
           )}
-        </Button>
-      )}
+        </button>
+      </div>
     </main>
   );
 }

@@ -106,6 +106,9 @@ export interface StudentProfile {
   backstory: string;
 }
 
+// ── 줌 상태 ────────────────────────────────────
+export type ZoomPhase = "idle" | "zooming-in" | "zoomed" | "zooming-out";
+
 // ── 이벤트 (AI 생성) ────────────────────────────
 export interface GeneratedEvent {
   eventType: EventCategory;
@@ -115,6 +118,9 @@ export interface GeneratedEvent {
   involvedStudentIds: string[]; // student UUIDs
   aiContext: string;
   presetChoices: PresetChoice[];
+  triggerStudentId?: string;
+  weekRange?: [number, number];
+  prerequisiteEventId?: string;
 }
 
 export interface PresetChoice {
