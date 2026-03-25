@@ -11,6 +11,9 @@ import { WeekTransition } from "@/components/game/WeekTransition";
 import { PhoneToggleButton, PhoneOverlay } from "@/components/game/PhoneUI";
 import { TutorialOverlay } from "@/components/game/TutorialOverlay";
 import { EventBanner } from "@/components/game/EventBanner";
+import { ChalkboardHUD } from "@/components/game/ChalkboardHUD";
+import { TeacherCharacter, FloorClickArea } from "@/components/game/TeacherCharacter";
+import { StudentTooltip, StudentProximityChecker } from "@/components/game/StudentTooltip";
 import { CLASS_LEVELS } from "@/types";
 import { GAMEOVER_MESSAGES } from "@/lib/game/engine";
 import type { Region, SchoolType, GameoverType, Resources } from "@/types";
@@ -257,8 +260,19 @@ export default function GamePage() {
           />
         </ZoomContainer>
 
-        {/* Layer 3: Game HUD (top) */}
+        {/* Layer 3: Chalkboard HUD (rendered on the blackboard) */}
+        <ChalkboardHUD />
+
+        {/* Layer 3b: Thin top bar (compact fallback) */}
         <GameHUD />
+
+        {/* Floor click area for teacher movement */}
+        <FloorClickArea />
+
+        {/* Teacher character */}
+        <TeacherCharacter />
+        <StudentProximityChecker />
+        <StudentTooltip />
 
         {/* Event banner (slides down after week transition) */}
         <EventBanner />

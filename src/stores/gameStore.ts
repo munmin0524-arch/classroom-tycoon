@@ -53,8 +53,18 @@ interface GameState {
   showEventBanner: boolean;
   eventBannerCount: number;
 
-  // HUD actions
+  // Teacher movement
+  teacherPos: { x: number; y: number };
+  teacherTarget: { x: number; y: number } | null;
+  teacherMoving: boolean;
+  nearbyStudentId: string | null;
+
+  // HUD + Teacher actions
   dismissEventBanner: () => void;
+  moveTeacher: (x: number, y: number) => void;
+  updateTeacherPos: (x: number, y: number) => void;
+  setTeacherArrived: () => void;
+  setNearbyStudent: (id: string | null) => void;
 
   // Actions
   togglePhone: () => void;
@@ -113,6 +123,10 @@ const initialState = {
   lastResourceChanges: null as Partial<Resources> | null,
   showEventBanner: false,
   eventBannerCount: 0,
+  teacherPos: { x: 50, y: 25 },
+  teacherTarget: null as { x: number; y: number } | null,
+  teacherMoving: false,
+  nearbyStudentId: null as string | null,
 };
 
 // Select eligible events for a given week
@@ -348,6 +362,10 @@ export const useGameStore = create<GameState>((set, get) => ({
     setTimeout(() => get().triggerEvent(studentId), 200);
   },
   dismissEventBanner: () => set({ showEventBanner: false }),
+  moveTeacher: (x, y) => set({ teacherTarget: { x, y }, teacherMoving: true, nearbyStudentId: null }),
+  updateTeacherPos: (x, y) => set({ teacherPos: { x, y } }),
+  setTeacherArrived: () => set({ teacherMoving: false, teacherTarget: null }),
+  setNearbyStudent: (id) => set({ nearbyStudentId: id }),
   nextTutorialStep: () => {
     const state = get();
     if (state.tutorialStep === null) return;
