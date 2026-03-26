@@ -57,10 +57,10 @@ export function ChalkboardHUD() {
   const eventCount = activeEventStudentIds.length;
 
   const bars: { key: keyof Resources; label: string; cls: string }[] = [
-    { key: "studentTrust", label: "신뢰", cls: "chalk-text-green" },
-    { key: "parentSatisfaction", label: "학부모", cls: "chalk-text-blue" },
-    { key: "schoolReputation", label: "평판", cls: "chalk-text-purple" },
-    { key: "teacherEnergy", label: "에너지", cls: "chalk-text-yellow" },
+    { key: "studentTrust", label: "신", cls: "chalk-text-green" },
+    { key: "parentSatisfaction", label: "부", cls: "chalk-text-blue" },
+    { key: "schoolReputation", label: "평", cls: "chalk-text-purple" },
+    { key: "teacherEnergy", label: "에", cls: "chalk-text-yellow" },
   ];
 
   return (
