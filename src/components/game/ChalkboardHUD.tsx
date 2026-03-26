@@ -57,10 +57,10 @@ export function ChalkboardHUD() {
   const eventCount = activeEventStudentIds.length;
 
   const bars: { key: keyof Resources; label: string; cls: string }[] = [
-    { key: "studentTrust", label: "신", cls: "chalk-text-green" },
-    { key: "parentSatisfaction", label: "부", cls: "chalk-text-blue" },
-    { key: "schoolReputation", label: "평", cls: "chalk-text-purple" },
-    { key: "teacherEnergy", label: "에", cls: "chalk-text-yellow" },
+    { key: "studentTrust", label: "신뢰도", cls: "chalk-text-green" },
+    { key: "parentSatisfaction", label: "학부모", cls: "chalk-text-blue" },
+    { key: "schoolReputation", label: "평판", cls: "chalk-text-purple" },
+    { key: "teacherEnergy", label: "에너지", cls: "chalk-text-yellow" },
   ];
 
   return (
@@ -91,7 +91,7 @@ export function ChalkboardHUD() {
       </div>
 
       {/* Line 2: Resources with trends */}
-      <div className="flex gap-3 mb-2 whitespace-nowrap overflow-hidden">
+      <div className="flex gap-2 mb-2 whitespace-nowrap overflow-hidden">
         {bars.map((bar) => {
           const val = resources[bar.key];
           const prev = previousResources?.[bar.key];
@@ -100,7 +100,7 @@ export function ChalkboardHUD() {
           return (
             <span
               key={bar.key}
-              className={`text-xs ${isDanger ? "chalk-text-red animate-resource-flash" : bar.cls}`}
+              className={`text-[10px] ${isDanger ? "chalk-text-red animate-resource-flash" : bar.cls}`}
             >
               {bar.label}<span className={trend.cls}>{trend.arrow}</span>{val}
             </span>
