@@ -11,7 +11,7 @@ export function ExclamationMark({ onClick }: ExclamationMarkProps) {
         e.stopPropagation();
         onClick();
       }}
-      className="absolute -top-14 left-1/2 -translate-x-1/2 cursor-pointer animate-exclamation z-10 group"
+      className="absolute -top-14 left-1/2 -translate-x-1/2 cursor-pointer animate-exclamation z-[20] group"
       style={{ background: "none", border: "none", padding: 0 }}
     >
       {/* Speech bubble background */}

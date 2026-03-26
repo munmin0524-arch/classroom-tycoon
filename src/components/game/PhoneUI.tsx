@@ -1,12 +1,13 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { useGameStore } from "@/stores/gameStore";
-import { StudentRoster } from "./phone/StudentRoster";
-import { Notifications } from "./phone/Notifications";
-import { ResourceDetail } from "./phone/ResourceDetail";
-import { EventHistory } from "./phone/EventHistory";
-import { ClassInfo } from "./phone/ClassInfo";
+import { StudentRoster, StudentRosterPopup } from "./phone/StudentRoster";
+import { Notifications, NotificationsPopup } from "./phone/Notifications";
+import { ResourceDetail, ResourceDetailPopup } from "./phone/ResourceDetail";
+import { EventHistory, EventHistoryPopup } from "./phone/EventHistory";
+import { ClassInfo, ClassInfoPopup } from "./phone/ClassInfo";
+import { InvestmentShop } from "./phone/InvestmentShop";
 
 function NextWeekApp() {
   const { activeEventStudentIds, status, advanceWeek, setPhoneApp } = useGameStore();
@@ -50,8 +51,47 @@ function NextWeekApp() {
   );
 }
 
+function NextWeekPopup() {
+  const { activeEventStudentIds, status, advanceWeek, closePhonePopup } = useGameStore();
+  const hasActiveEvents = activeEventStudentIds.length > 0;
+  const canAdvance = !hasActiveEvents && status === "active";
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full">
+      {hasActiveEvents ? (
+        <>
+          <div className="text-red-400 text-6xl mb-6">!</div>
+          <div className="text-lg text-gray-300 text-center mb-4">
+            미처리 이벤트가 {activeEventStudentIds.length}건 있습니다
+          </div>
+          <div className="text-sm text-gray-500 text-center mb-8">
+            알림함에서 이벤트를 먼저 처리해주세요
+          </div>
+          <button onClick={closePhonePopup} className="pixel-button text-sm px-6 py-3">
+            돌아가기
+          </button>
+        </>
+      ) : (
+        <>
+          <div className="text-gray-400 text-6xl mb-6">&#8594;</div>
+          <div className="text-lg text-gray-300 text-center mb-6">
+            다음 주로 넘어갈 준비가 되었습니다
+          </div>
+          <button
+            onClick={() => { advanceWeek(); closePhonePopup(); }}
+            disabled={!canAdvance}
+            className="pixel-button pixel-button-primary text-lg px-12 py-4"
+          >
+            다음 주 진행
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 function PhoneHome() {
-  const { activeEventStudentIds, setPhoneApp } = useGameStore();
+  const { activeEventStudentIds, openPhonePopup } = useGameStore();
   const notifCount = activeEventStudentIds.length;
 
   const apps = [
@@ -60,6 +100,7 @@ function PhoneHome() {
     { id: "resources" as const, label: "자원 현황", icon: "📊", bg: "#2a2a4a" },
     { id: "history" as const, label: "이벤트 기록", icon: "📋", bg: "#3a3a2a" },
     { id: "classinfo" as const, label: "학급 정보", icon: "⭐", bg: "#2a3a4a" },
+    { id: "investment" as const, label: "교실 투자", icon: "🏗️", bg: "#4a3a1a" },
     { id: "nextweek" as const, label: "다음 주", icon: "➡️", bg: "#4a3a2a" },
   ];
 
@@ -68,7 +109,7 @@ function PhoneHome() {
       <div className="text-center text-yellow-300 pixel-text text-sm mb-4">교실 타이쿤</div>
       <div className="grid grid-cols-3 gap-2">
         {apps.map((app) => (
-          <div key={app.id} className="phone-app-icon" onClick={() => setPhoneApp(app.id)}>
+          <div key={app.id} className="phone-app-icon" onClick={() => openPhonePopup(app.id)}>
             <div className="phone-app-icon-box" style={{ background: app.bg }}>{app.icon}</div>
             {app.badge && app.badge > 0 && (
               <div className="absolute -top-0.5 right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[8px] text-white font-bold">
@@ -91,9 +132,114 @@ function PhoneScreen() {
     case "resources": return <ResourceDetail />;
     case "history": return <EventHistory />;
     case "classinfo": return <ClassInfo />;
+    case "investment": return <InvestmentShop />;
     case "nextweek": return <NextWeekApp />;
     default: return <PhoneHome />;
   }
+}
+
+/** Popup titles */
+const POPUP_TITLES: Record<string, string> = {
+  roster: "학생 명부",
+  notifications: "알림함",
+  resources: "자원 현황",
+  history: "이벤트 기록",
+  classinfo: "학급 정보",
+  investment: "교실 투자",
+  nextweek: "다음 주",
+};
+
+const POPUP_ICONS: Record<string, string> = {
+  roster: "👤",
+  notifications: "🔔",
+  resources: "📊",
+  history: "📋",
+  classinfo: "⭐",
+  investment: "🏗️",
+  nextweek: "➡️",
+};
+
+function PopupContent({ app }: { app: string }) {
+  switch (app) {
+    case "roster": return <StudentRosterPopup />;
+    case "notifications": return <NotificationsPopup />;
+    case "resources": return <ResourceDetailPopup />;
+    case "history": return <EventHistoryPopup />;
+    case "classinfo": return <ClassInfoPopup />;
+    case "investment": return <InvestmentShop popup />;
+    case "nextweek": return <NextWeekPopup />;
+    default: return null;
+  }
+}
+
+/** Fullscreen popup modal for phone apps */
+function PhonePopupModal() {
+  const { phonePopupApp, closePhonePopup } = useGameStore();
+
+  return (
+    <AnimatePresence>
+      {phonePopupApp && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[60]"
+            style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+            onClick={closePhonePopup}
+          />
+          {/* Popup card */}
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            className="fixed z-[61] flex flex-col"
+            style={{
+              top: "7.5%",
+              left: "10%",
+              width: "80%",
+              height: "85%",
+              background: "rgba(13, 13, 26, 0.98)",
+              border: "3px solid #ffffff",
+              boxShadow: `
+                inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+                0 0 0 1px #000000,
+                0 0 0 4px #333333,
+                0 0 24px rgba(100, 200, 255, 0.2),
+                0 0 60px rgba(100, 200, 255, 0.05)
+              `,
+              imageRendering: "pixelated",
+            }}
+          >
+            {/* Header */}
+            <div
+              className="flex items-center justify-between px-6 py-4"
+              style={{ background: "#0a0a14", borderBottom: "2px solid #333" }}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">{POPUP_ICONS[phonePopupApp] || ""}</span>
+                <span className="pixel-text text-lg text-white">{POPUP_TITLES[phonePopupApp] || ""}</span>
+              </div>
+              <button
+                onClick={closePhonePopup}
+                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                style={{ border: "1px solid #444" }}
+              >
+                ✕
+              </button>
+            </div>
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden popup-scroll p-6">
+              <PopupContent app={phonePopupApp} />
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
 }
 
 /**
@@ -106,58 +252,63 @@ export function PhonePeek() {
   const notifCount = activeEventStudentIds.length;
 
   return (
-    <div className="fixed z-40" style={{ right: 0, top: "50%", transform: "translateY(-50%)" }}>
-      <motion.div
-        animate={{ x: phoneOpen ? 0 : 260 }}
-        transition={{ duration: 0.35, ease: "easeInOut" }}
-        style={{ width: 300 }}
-      >
-        {/* Peek tab (always visible) */}
-        <div
-          onClick={togglePhone}
-          className="cursor-pointer flex items-center justify-between px-3 py-2"
-          style={{
-            background: "#111118",
-            border: "2px solid #333",
-            borderRight: "none",
-            borderRadius: "10px 0 0 0",
-            borderBottom: phoneOpen ? "none" : "2px solid #333",
-          }}
+    <>
+      <div className="fixed z-40" style={{ right: 0, top: "50%", transform: "translateY(-50%)" }}>
+        <motion.div
+          animate={{ x: phoneOpen ? 0 : 260 }}
+          transition={{ duration: 0.35, ease: "easeInOut" }}
+          style={{ width: 300 }}
         >
-          <div className="flex items-center gap-2">
-            <span className="text-base">📱</span>
-            <span className="pixel-text text-xs text-gray-300">교사 폰</span>
+          {/* Peek tab (always visible) */}
+          <div
+            onClick={togglePhone}
+            className="cursor-pointer flex items-center justify-between px-3 py-2"
+            style={{
+              background: "#111118",
+              border: "2px solid #333",
+              borderRight: "none",
+              borderRadius: "10px 0 0 0",
+              borderBottom: phoneOpen ? "none" : "2px solid #333",
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-base">📱</span>
+              <span className="pixel-text text-xs text-gray-300">교사 폰</span>
+            </div>
+            {notifCount > 0 && (
+              <span
+                className="px-2 py-0.5 text-[10px] text-white font-bold pixel-text rounded-full animate-resource-flash"
+                style={{ background: "#dc2626" }}
+              >
+                {notifCount}건
+              </span>
+            )}
+            <span className="text-gray-500 text-xs ml-2">{phoneOpen ? "▶" : "◀"}</span>
           </div>
-          {notifCount > 0 && (
-            <span
-              className="px-2 py-0.5 text-[10px] text-white font-bold pixel-text rounded-full animate-resource-flash"
-              style={{ background: "#dc2626" }}
-            >
-              {notifCount}건
-            </span>
-          )}
-          <span className="text-gray-500 text-xs ml-2">{phoneOpen ? "▶" : "◀"}</span>
-        </div>
 
-        {/* Full phone body */}
-        <div className="phone-frame" style={{ borderRadius: "0 0 0 20px", borderTop: "none" }}>
-          {/* Status bar */}
-          <div className="phone-statusbar">
-            <span className="pixel-text">9:00</span>
-            <span className="pixel-text">▂▅ LTE</span>
-          </div>
+          {/* Full phone body */}
+          <div className="phone-frame" style={{ borderRadius: "0 0 0 20px", borderTop: "none" }}>
+            {/* Status bar */}
+            <div className="phone-statusbar">
+              <span className="pixel-text">9:00</span>
+              <span className="pixel-text">▂▅ LTE</span>
+            </div>
 
-          {/* Screen */}
-          <div className="phone-screen">
-            <PhoneScreen />
-          </div>
+            {/* Screen */}
+            <div className="phone-screen">
+              <PhoneScreen />
+            </div>
 
-          {/* Home button */}
-          <div className="phone-home-btn">
-            <button onClick={() => setPhoneApp("home")} />
+            {/* Home button */}
+            <div className="phone-home-btn">
+              <button onClick={() => setPhoneApp("home")} />
+            </div>
           </div>
-        </div>
-      </motion.div>
-    </div>
+        </motion.div>
+      </div>
+
+      {/* Fullscreen popup modal */}
+      <PhonePopupModal />
+    </>
   );
 }

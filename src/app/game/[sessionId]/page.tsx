@@ -91,9 +91,10 @@ export default function GamePage() {
   const sessionId = params.sessionId as string;
 
   const {
-    status, currentWeek, students, region,
+    status, currentWeek, students, region, classLevel,
     activeEventStudentIds, showDialog, currentEvent,
     lastOutcome, dialogStudentId, isTransitioning,
+    purchasedInvestments,
     initGame, completeTransition, triggerEvent,
     submitDecision, dismissOutcome,
   } = useGameStore();
@@ -121,7 +122,7 @@ export default function GamePage() {
       {/* Game container */}
       <div className="game-container relative w-screen h-screen overflow-hidden" data-region={region}>
         {/* Layer 1: Background */}
-        <PixelBackground region={region} />
+        <PixelBackground region={region} classLevel={classLevel} purchasedInvestments={purchasedInvestments} />
 
         {/* Layer 2: Zoom + Students */}
         <ZoomContainer>

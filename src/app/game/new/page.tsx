@@ -7,17 +7,17 @@ type SchoolType = "elementary" | "middle" | "high";
 type Region = "urban" | "rural" | "newtown";
 
 const SCHOOL_OPTIONS = [
-  { value: "elementary" as SchoolType, label: "초등학교", icon: "■■", grades: [1, 2, 3, 4, 5, 6] },
-  { value: "middle" as SchoolType, label: "중학교", icon: "■■■", grades: [1, 2, 3] },
-  { value: "high" as SchoolType, label: "고등학교", icon: "■■■■", grades: [1, 2, 3] },
+  { value: "elementary" as SchoolType, label: "초등학교", icon: "🏫", grades: [1, 2, 3, 4, 5, 6] },
+  { value: "middle" as SchoolType, label: "중학교", icon: "🏢", grades: [1, 2, 3] },
+  { value: "high" as SchoolType, label: "고등학교", icon: "🎓", grades: [1, 2, 3] },
 ];
 
 const ALL_GRADES = [1, 2, 3, 4, 5, 6];
 
 const REGION_OPTIONS = [
-  { value: "urban" as Region, label: "도시", desc: "균형 잡힌 기본 난이도", color: "#4a90d9" },
-  { value: "rural" as Region, label: "농촌/읍면", desc: "자원 부족, 높은 난이도", color: "#7cb342" },
-  { value: "newtown" as Region, label: "신도시", desc: "학부모 민원 가중", color: "#e91e63" },
+  { value: "urban" as Region, label: "도시", desc: "균형 잡힌 기본 난이도", color: "#4a90d9", icon: "🏙️" },
+  { value: "rural" as Region, label: "농촌/읍면", desc: "자원 부족, 높은 난이도", color: "#7cb342", icon: "🌾" },
+  { value: "newtown" as Region, label: "신도시", desc: "학부모 민원 가중", color: "#e91e63", icon: "🏘️" },
 ];
 
 export default function NewGamePage() {
@@ -58,7 +58,7 @@ export default function NewGamePage() {
                   schoolType === opt.value ? "pixel-button-primary" : ""
                 }`}
               >
-                <div className="text-xs text-gray-500 mb-1">{opt.icon}</div>
+                <div className="text-xl mb-1">{opt.icon}</div>
                 <div className="text-sm">{opt.label}</div>
               </button>
             ))}
@@ -100,10 +100,7 @@ export default function NewGamePage() {
                   region === opt.value ? "pixel-button-primary" : ""
                 }`}
               >
-                <div
-                  className="w-3 h-3 mx-auto mb-1"
-                  style={{ background: opt.color }}
-                />
+                <div className="text-xl mb-1">{opt.icon}</div>
                 <div className="text-sm">{opt.label}</div>
                 <div className="text-[8px] text-gray-500 mt-1">{opt.desc}</div>
               </button>

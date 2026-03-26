@@ -399,6 +399,18 @@
   color: #fff;
 }
 
+/* ── Popup Scroll ── */
+.popup-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.popup-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+.popup-scroll::-webkit-scrollbar-thumb {
+  background: #444466;
+  border: 1px solid #222233;
+}
+
 /* ── Base ── */
 * {
   box-sizing: border-box;

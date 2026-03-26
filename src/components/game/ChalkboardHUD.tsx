@@ -91,7 +91,7 @@ export function ChalkboardHUD() {
       </div>
 
       {/* Line 2: Resources with trends */}
-      <div className="flex gap-4 flex-wrap mb-2">
+      <div className="flex gap-3 mb-2 whitespace-nowrap overflow-hidden">
         {bars.map((bar) => {
           const val = resources[bar.key];
           const prev = previousResources?.[bar.key];

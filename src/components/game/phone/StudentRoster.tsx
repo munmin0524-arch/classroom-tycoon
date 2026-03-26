@@ -22,56 +22,60 @@ const ROLE_LABELS: Record<string, string> = {
   leader: "리더", follower: "따르미", boundary: "중재자", independent: "독립적",
 };
 
-function StudentDetail() {
-  const { phoneSelectedStudentId, students, setPhoneSelectedStudent } = useGameStore();
-  const student = students.find((s) => s.id === phoneSelectedStudentId);
+function StudentDetailCard({ studentId, onBack, large = false }: { studentId: string; onBack: () => void; large?: boolean }) {
+  const { students } = useGameStore();
+  const student = students.find((s) => s.id === studentId);
   if (!student) return null;
 
-  const emotion = getEmotion(student.emotional.happiness, student.emotional.stress);
   const friends = student.social.friendIds
     .map((fid) => students.find((s) => s.seatNumber === fid))
     .filter(Boolean);
 
+  const sz = large ? { text: "text-sm", label: "text-xs", small: "text-[10px]", gap: "gap-4", pad: "p-4", scale: 3 } :
+    { text: "text-sm", label: "text-[10px]", small: "text-[9px]", gap: "gap-3", pad: "p-3", scale: 2 };
+
   return (
     <div>
-      <div className="phone-app-header">
-        <button onClick={() => setPhoneSelectedStudent(null)}>&#8592;</button>
-        <span className="pixel-text">{student.name}</span>
-      </div>
-      <div className="p-3 space-y-3">
+      {!large && (
+        <div className="phone-app-header">
+          <button onClick={onBack}>&#8592;</button>
+          <span className="pixel-text">{student.name}</span>
+        </div>
+      )}
+      <div className={`${sz.pad} space-y-3`}>
         {/* Portrait + basic info */}
-        <div className="flex items-center gap-3">
-          <PixelPortrait studentId={student.id} happiness={student.emotional.happiness} stress={student.emotional.stress} scale={2} />
+        <div className={`flex items-center ${sz.gap}`}>
+          <PixelPortrait studentId={student.id} happiness={student.emotional.happiness} stress={student.emotional.stress} scale={sz.scale} />
           <div>
-            <div className="text-sm text-white">{student.name}</div>
-            <div className="text-[10px] text-gray-400">
+            <div className={`${sz.text} text-white`}>{student.name}</div>
+            <div className={`${sz.label} text-gray-400`}>
               {PERSONALITY_LABELS[student.personalityMain]} / {PERSONALITY_LABELS[student.personalitySub]}
             </div>
-            <div className="text-[10px] text-gray-500">{student.seatNumber}번 자리</div>
+            <div className={`${sz.small} text-gray-500`}>{student.seatNumber}번 자리</div>
           </div>
         </div>
 
         {/* Emotional */}
         <div className="space-y-1">
-          <div className="text-[10px] text-yellow-300 pixel-text">감정 상태</div>
+          <div className={`${sz.label} text-yellow-300 pixel-text`}>감정 상태</div>
           {[
             { label: "행복", value: student.emotional.happiness, color: "#22c55e" },
             { label: "스트레스", value: student.emotional.stress, color: "#ef4444" },
             { label: "교사 신뢰", value: student.emotional.trustInTeacher, color: "#3b82f6" },
           ].map((item) => (
             <div key={item.label} className="flex items-center gap-2">
-              <span className="text-[9px] text-gray-400 w-12">{item.label}</span>
-              <div className="flex-1 h-2 bg-gray-800">
-                <div style={{ width: `${item.value}%`, height: "100%", background: item.color }} />
+              <span className={`${sz.small} text-gray-400 w-12`}>{item.label}</span>
+              <div className={`flex-1 ${large ? "h-3" : "h-2"} bg-gray-800`}>
+                <div style={{ width: `${item.value}%`, height: "100%", background: item.color, transition: "width 0.5s" }} />
               </div>
-              <span className="text-[9px] text-gray-300 w-6 text-right">{item.value}</span>
+              <span className={`${sz.small} text-gray-300 w-6 text-right`}>{item.value}</span>
             </div>
           ))}
         </div>
 
         {/* Academic */}
         <div className="space-y-1">
-          <div className="text-[10px] text-yellow-300 pixel-text">성적</div>
+          <div className={`${sz.label} text-yellow-300 pixel-text`}>성적</div>
           <div className="grid grid-cols-5 gap-1 text-center">
             {[
               { label: "국", value: student.academic.korean },
@@ -81,34 +85,34 @@ function StudentDetail() {
               { label: "사", value: student.academic.social },
             ].map((s) => (
               <div key={s.label} className="bg-gray-800/50 p-1">
-                <div className="text-[8px] text-gray-500">{s.label}</div>
-                <div className={`text-[11px] ${s.value >= 80 ? "text-green-400" : s.value >= 60 ? "text-gray-300" : "text-red-400"}`}>
+                <div className={`${sz.small} text-gray-500`}>{s.label}</div>
+                <div className={`${large ? "text-sm" : "text-[11px]"} ${s.value >= 80 ? "text-green-400" : s.value >= 60 ? "text-gray-300" : "text-red-400"}`}>
                   {s.value}
                 </div>
               </div>
             ))}
           </div>
-          <div className="text-[9px] text-gray-500 text-right">
+          <div className={`${sz.small} text-gray-500 text-right`}>
             종합: {student.academic.overall === "top" ? "상위" : student.academic.overall === "middle" ? "중위" : student.academic.overall === "bottom" ? "하위" : "불균형"}
           </div>
         </div>
 
         {/* Family */}
         <div>
-          <div className="text-[10px] text-yellow-300 pixel-text mb-1">가정환경</div>
-          <div className="text-[10px] text-gray-300">
+          <div className={`${sz.label} text-yellow-300 pixel-text mb-1`}>가정환경</div>
+          <div className={`${sz.label} text-gray-300`}>
             <span className="text-purple-300">[{FAMILY_LABELS[student.family.type]}]</span> {student.family.description}
           </div>
         </div>
 
         {/* Social */}
         <div>
-          <div className="text-[10px] text-yellow-300 pixel-text mb-1">교우관계</div>
-          <div className="text-[10px] text-gray-300">
+          <div className={`${sz.label} text-yellow-300 pixel-text mb-1`}>교우관계</div>
+          <div className={`${sz.label} text-gray-300`}>
             {GROUP_LABELS[student.social.groupType]} / {ROLE_LABELS[student.social.role]}
           </div>
           {friends.length > 0 && (
-            <div className="text-[9px] text-gray-500 mt-0.5">
+            <div className={`${sz.small} text-gray-500 mt-0.5`}>
               친한 친구: {friends.map((f) => f!.name).join(", ")}
             </div>
           )}
@@ -116,18 +120,19 @@ function StudentDetail() {
 
         {/* Backstory */}
         <div>
-          <div className="text-[10px] text-yellow-300 pixel-text mb-1">특이사항</div>
-          <div className="text-[10px] text-gray-400 leading-relaxed">{student.backstory}</div>
+          <div className={`${sz.label} text-yellow-300 pixel-text mb-1`}>특이사항</div>
+          <div className={`${sz.label} text-gray-400 leading-relaxed`}>{student.backstory}</div>
         </div>
       </div>
     </div>
   );
 }
 
+/** Small phone version */
 export function StudentRoster() {
   const { students, phoneSelectedStudentId, setPhoneSelectedStudent, setPhoneApp } = useGameStore();
 
-  if (phoneSelectedStudentId) return <StudentDetail />;
+  if (phoneSelectedStudentId) return <StudentDetailCard studentId={phoneSelectedStudentId} onBack={() => setPhoneSelectedStudent(null)} />;
 
   return (
     <div>
@@ -162,6 +167,44 @@ export function StudentRoster() {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/** Large popup version */
+export function StudentRosterPopup() {
+  const { students, phoneSelectedStudentId, setPhoneSelectedStudent } = useGameStore();
+
+  if (phoneSelectedStudentId) {
+    return <StudentDetailCard studentId={phoneSelectedStudentId} onBack={() => setPhoneSelectedStudent(null)} large />;
+  }
+
+  return (
+    <div className="grid grid-cols-3 gap-3">
+      {students.map((student) => {
+        const emotion = getEmotion(student.emotional.happiness, student.emotional.stress);
+        const emotionIcon = emotion === "happy" ? ":-)" : emotion === "neutral" ? ":-|" : emotion === "worried" ? ":-/" : ":-(";
+        const emotionColor = emotion === "happy" ? "#22c55e" : emotion === "neutral" ? "#888" : emotion === "worried" ? "#f59e0b" : "#ef4444";
+
+        return (
+          <button
+            key={student.id}
+            onClick={() => setPhoneSelectedStudent(student.id)}
+            className="flex flex-col items-center gap-2 p-4 hover:bg-white/5 transition-colors"
+            style={{ background: "rgba(255,255,255,0.02)", border: "1px solid #222" }}
+          >
+            <PixelPortrait studentId={student.id} happiness={student.emotional.happiness} stress={student.emotional.stress} scale={2.5} />
+            <div className="text-sm text-white pixel-text">{student.name}</div>
+            <div className="text-xs text-gray-500">{PERSONALITY_LABELS[student.personalityMain]}</div>
+            <div className="flex items-center gap-2">
+              <span style={{ color: emotionColor }} className="text-sm">{emotionIcon}</span>
+              <div className="w-16 h-2 bg-gray-800">
+                <div style={{ width: `${student.emotional.happiness}%`, height: "100%", background: emotionColor, transition: "width 0.5s" }} />
+              </div>
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }

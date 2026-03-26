@@ -1,8 +1,17 @@
 import { create } from "zustand";
-import type { Resources, StudentProfile, Region, SchoolType, ZoomPhase } from "@/types";
+import type { Resources, StudentProfile, Region, SchoolType, ZoomPhase, InvestmentType, MentorType } from "@/types";
+import { INVESTMENTS } from "@/types";
 import { MOCK_STUDENTS } from "@/lib/mock/students";
 import { MOCK_EVENTS, MOCK_OUTCOMES, getDefaultOutcome, type MockEvent, type MockOutcome } from "@/lib/mock/events";
 import { checkGameover, calculateClassLevel, calculateTPReward } from "@/lib/game/engine";
+
+// Mentor data
+export const MENTOR_DATA: Record<MentorType, { name: string; title: string; color: string; style: string }> = {
+  kim: { name: "김수진", title: "심리상담 전문가", color: "#a78bfa", style: "공감과 감정 코칭 중심" },
+  park: { name: "박정훈", title: "교육행정 전문가", color: "#60a5fa", style: "규정과 절차 중심" },
+  lee: { name: "이미영", title: "30년 경력 교사", color: "#4ade80", style: "경험과 직관 중심" },
+  choi: { name: "최현수", title: "교육학 교수", color: "#f97316", style: "이론과 연구 중심" },
+};
 
 interface GameState {
   sessionId: string | null;
@@ -41,8 +50,9 @@ interface GameState {
 
   // Phone UI state
   phoneOpen: boolean;
-  phoneApp: "home" | "roster" | "notifications" | "resources" | "history" | "classinfo" | "nextweek" | null;
+  phoneApp: "home" | "roster" | "notifications" | "resources" | "history" | "classinfo" | "nextweek" | "investment" | null;
   phoneSelectedStudentId: string | null;
+  phonePopupApp: "roster" | "notifications" | "resources" | "history" | "classinfo" | "nextweek" | "investment" | null;
 
   // Tutorial
   tutorialStep: number | null; // 0,1,2 = active steps, null = done
@@ -57,7 +67,17 @@ interface GameState {
   teacherPos: { x: number; y: number };
   teacherTarget: { x: number; y: number } | null;
   teacherMoving: boolean;
+  teacherAutoMove: boolean; // auto-patrol enabled
   nearbyStudentId: string | null;
+
+  // Investment state
+  purchasedInvestments: InvestmentType[];
+
+  // Mentor state
+  currentMentor: MentorType;
+
+  // Resource history for charts
+  resourceHistory: { week: number; resources: Resources }[];
 
   // HUD + Teacher actions
   dismissEventBanner: () => void;
@@ -70,6 +90,8 @@ interface GameState {
   togglePhone: () => void;
   setPhoneApp: (app: GameState["phoneApp"]) => void;
   setPhoneSelectedStudent: (id: string | null) => void;
+  openPhonePopup: (app: GameState["phonePopupApp"]) => void;
+  closePhonePopup: () => void;
   triggerEventFromPhone: (studentId: string) => void;
   nextTutorialStep: () => void;
   initGame: (sessionId: string, region?: Region, schoolType?: SchoolType, grade?: number) => void;
@@ -81,6 +103,7 @@ interface GameState {
   setZoomTarget: (target: { studentId: string; seatIndex: number } | null) => void;
   setZoomPhase: (phase: ZoomPhase) => void;
   setGameover: (type: string) => void;
+  purchaseInvestment: (type: InvestmentType) => void;
   reset: () => void;
 }
 
@@ -118,15 +141,20 @@ const initialState = {
   phoneOpen: false,
   phoneApp: null as GameState["phoneApp"],
   phoneSelectedStudentId: null as string | null,
+  phonePopupApp: null as GameState["phonePopupApp"],
   tutorialStep: 0 as number | null,
   previousResources: null as Resources | null,
   lastResourceChanges: null as Partial<Resources> | null,
   showEventBanner: false,
   eventBannerCount: 0,
-  teacherPos: { x: 50, y: 25 },
+  teacherPos: { x: -1, y: -1 }, // will be set properly in initGame
   teacherTarget: null as { x: number; y: number } | null,
   teacherMoving: false,
+  teacherAutoMove: true,
   nearbyStudentId: null as string | null,
+  purchasedInvestments: [] as InvestmentType[],
+  currentMentor: "kim" as MentorType,
+  resourceHistory: [] as { week: number; resources: Resources }[],
 };
 
 // Select eligible events for a given week
@@ -169,6 +197,11 @@ export const useGameStore = create<GameState>((set, get) => ({
     const initialEvents = selectEventsForWeek(1, []);
     const activeStudentIds = initialEvents.map((e) => e.triggerStudentId);
 
+    // Set initial teacher position to floor center (teacher's desk area)
+    const w = typeof window !== "undefined" ? window.innerWidth : 1200;
+    const h = typeof window !== "undefined" ? window.innerHeight : 800;
+    const initialTeacherPos = { x: w * 0.5, y: h * 0.48 };
+
     set({
       ...initialState,
       sessionId,
@@ -178,6 +211,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       students: MOCK_STUDENTS,
       status: "active",
       activeEventStudentIds: activeStudentIds,
+      teacherPos: initialTeacherPos,
+      teacherAutoMove: true,
     });
   },
 
@@ -212,6 +247,13 @@ export const useGameStore = create<GameState>((set, get) => ({
     const events = selectEventsForWeek(nextWeek, state.resolvedEventIds);
     const activeStudentIds = events.map((e) => e.triggerStudentId);
 
+    // Rotate mentor each week
+    const mentors: MentorType[] = ["kim", "park", "lee", "choi"];
+    const nextMentor = mentors[nextWeek % mentors.length];
+
+    // Track resource history
+    const newHistory = [...state.resourceHistory, { week: state.currentWeek, resources: { ...state.resources } }];
+
     set({
       currentWeek: nextWeek,
       isTransitioning: false,
@@ -228,6 +270,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       lastResourceChanges: null,
       showEventBanner: true,
       eventBannerCount: activeStudentIds.length,
+      currentMentor: nextMentor,
+      resourceHistory: newHistory,
     });
   },
 
@@ -344,6 +388,40 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   setGameover: (type) => set({ status: "gameover", gameoverType: type }),
+  purchaseInvestment: (type) => {
+    const state = get();
+    const item = INVESTMENTS[type];
+    if (!item || state.tycoonPoints < item.cost) return;
+    if (state.purchasedInvestments.includes(type)) return;
+
+    // Apply effects
+    let resourceDelta: Partial<Resources> = {};
+    if (type === "class_event") {
+      resourceDelta = { studentTrust: 5, teacherEnergy: -5 };
+    } else if (type === "library") {
+      resourceDelta = { studentTrust: 5 };
+    } else if (type === "art_corner") {
+      resourceDelta = { studentTrust: 3 };
+    } else if (type === "rules_board") {
+      resourceDelta = { parentSatisfaction: 3 };
+    } else if (type === "seat_change") {
+      resourceDelta = { studentTrust: 2 };
+    }
+
+    const newResources = {
+      studentTrust: Math.max(0, Math.min(100, state.resources.studentTrust + (resourceDelta.studentTrust || 0))),
+      parentSatisfaction: Math.max(0, Math.min(100, state.resources.parentSatisfaction + (resourceDelta.parentSatisfaction || 0))),
+      schoolReputation: Math.max(0, Math.min(100, state.resources.schoolReputation + (resourceDelta.schoolReputation || 0))),
+      teacherEnergy: Math.max(0, Math.min(100, state.resources.teacherEnergy + (resourceDelta.teacherEnergy || 0))),
+    };
+
+    set({
+      tycoonPoints: state.tycoonPoints - item.cost,
+      purchasedInvestments: [...state.purchasedInvestments, type],
+      resources: newResources,
+      lastResourceChanges: resourceDelta,
+    });
+  },
   reset: () => set(initialState),
 
   // Phone actions
@@ -353,12 +431,15 @@ export const useGameStore = create<GameState>((set, get) => ({
       phoneOpen: !state.phoneOpen,
       phoneApp: !state.phoneOpen ? "home" : null,
       phoneSelectedStudentId: null,
+      phonePopupApp: null,
     });
   },
   setPhoneApp: (app) => set({ phoneApp: app, phoneSelectedStudentId: null }),
   setPhoneSelectedStudent: (id) => set({ phoneSelectedStudentId: id }),
+  openPhonePopup: (app) => set({ phonePopupApp: app }),
+  closePhonePopup: () => set({ phonePopupApp: null, phoneSelectedStudentId: null }),
   triggerEventFromPhone: (studentId) => {
-    set({ phoneOpen: false, phoneApp: null, phoneSelectedStudentId: null });
+    set({ phoneOpen: false, phoneApp: null, phoneSelectedStudentId: null, phonePopupApp: null });
     setTimeout(() => get().triggerEvent(studentId), 200);
   },
   dismissEventBanner: () => set({ showEventBanner: false }),
