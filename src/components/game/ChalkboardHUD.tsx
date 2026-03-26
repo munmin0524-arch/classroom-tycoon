@@ -110,7 +110,7 @@ export function ChalkboardHUD() {
 
       {/* Line 3: TP + Events */}
       <div className="flex justify-between items-center">
-        <span className="chalk-text-yellow text-sm">{tycoonPoints}TP</span>
+        <span className="chalk-text-yellow text-sm">{tycoonPoints}G</span>
         {eventCount > 0 ? (
           <span className="chalk-text-red text-sm animate-resource-flash">{eventCount}건 발생!</span>
         ) : (

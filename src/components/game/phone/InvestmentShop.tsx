@@ -44,7 +44,7 @@ export function InvestmentShop({ popup = false }: InvestmentShopProps) {
         <div className="phone-app-header">
           <button onClick={() => setPhoneApp("home")}>&#8592;</button>
           <span className="pixel-text">교실 투자</span>
-          <span className="text-[10px] text-yellow-300 ml-auto">{tycoonPoints} TP</span>
+          <span className="text-[10px] text-yellow-300 ml-auto">{tycoonPoints} G</span>
         </div>
         <div className="p-2 space-y-2">
           {items.map(([type, item]) => {
@@ -55,7 +55,7 @@ export function InvestmentShop({ popup = false }: InvestmentShopProps) {
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-sm">{INVESTMENT_ICONS[type]}</span>
                   <span className="text-xs text-white flex-1">{item.name}</span>
-                  <span className="text-[10px] text-yellow-300">{item.cost} TP</span>
+                  <span className="text-[10px] text-yellow-300">{item.cost} G</span>
                 </div>
                 <div className="text-[9px] text-gray-500 mb-2">{item.effect}</div>
                 {purchased ? (
@@ -84,7 +84,7 @@ export function InvestmentShop({ popup = false }: InvestmentShopProps) {
       <div className="flex items-center justify-between mb-6 p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid #333" }}>
         <div>
           <div className="text-sm text-gray-400">사용 가능한 포인트</div>
-          <div className="text-2xl text-yellow-300 pixel-text">{tycoonPoints} TP</div>
+          <div className="text-2xl text-yellow-300 pixel-text">{tycoonPoints} G</div>
         </div>
         <div className="text-sm text-gray-500">
           구매한 투자: {purchasedInvestments.length} / {items.length}
@@ -130,7 +130,7 @@ export function InvestmentShop({ popup = false }: InvestmentShopProps) {
                 <span className="text-3xl">{INVESTMENT_ICONS[type]}</span>
                 <div>
                   <div className="text-base text-white pixel-text">{item.name}</div>
-                  <div className="text-sm text-yellow-300">{item.cost} TP</div>
+                  <div className="text-sm text-yellow-300">{item.cost} G</div>
                 </div>
               </div>
               <div className="text-sm text-gray-400 mb-2">{INVESTMENT_DESCRIPTIONS[type]}</div>
@@ -148,7 +148,7 @@ export function InvestmentShop({ popup = false }: InvestmentShopProps) {
                   disabled={!canAfford}
                   className={`pixel-button w-full text-sm py-2 ${canAfford ? "pixel-button-primary" : "opacity-40"}`}
                 >
-                  {canAfford ? "투자하기" : `TP 부족 (${item.cost - tycoonPoints} 더 필요)`}
+                  {canAfford ? "투자하기" : `골드 부족 (${item.cost - tycoonPoints}G 더 필요)`}
                 </button>
               )}
             </motion.div>

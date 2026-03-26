@@ -52,8 +52,8 @@ export function ClassInfo() {
           </div>
         </div>
         <div className="p-2" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid #222" }}>
-          <div className="text-[10px] text-gray-500 mb-1">타이쿤 포인트</div>
-          <div className="text-lg text-yellow-300 pixel-text">{tycoonPoints} TP</div>
+          <div className="text-[10px] text-gray-500 mb-1">골드</div>
+          <div className="text-lg text-yellow-300 pixel-text">{tycoonPoints} G</div>
         </div>
         <div className="p-2" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid #222" }}>
           <div className="text-[10px] text-gray-500 mb-1">학생 현황</div>
@@ -140,9 +140,9 @@ export function ClassInfoPopup() {
 
         {/* TP card */}
         <div className="p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid #222" }}>
-          <div className="text-xs text-gray-500 mb-2">타이쿤 포인트</div>
-          <div className="text-3xl text-yellow-300 pixel-text">{tycoonPoints} TP</div>
-          <div className="text-xs text-gray-500 mt-1">교실 투자에 사용할 수 있습니다</div>
+          <div className="text-xs text-gray-500 mb-2">골드</div>
+          <div className="text-3xl text-yellow-300 pixel-text">{tycoonPoints} G</div>
+          <div className="text-xs text-gray-500 mt-1">교실 투자에 사용할 수 있는 골드</div>
         </div>
 
         {/* Stats summary */}
@@ -154,7 +154,7 @@ export function ClassInfoPopup() {
               <span className="text-white">{Math.max(0, 40 - currentWeek)}주</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400">이벤트 당 평균 TP</span>
+              <span className="text-gray-400">이벤트 당 평균 골드</span>
               <span className="text-white">{eventHistory.length > 0 ? Math.round(tycoonPoints / eventHistory.length) : 0}</span>
             </div>
           </div>

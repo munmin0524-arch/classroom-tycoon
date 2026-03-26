@@ -56,7 +56,7 @@ function GameOverScreen() {
         <div className="text-red-400 text-2xl pixel-text mb-4">{msg.title}</div>
         <div className="text-gray-300 text-sm mb-6">{msg.description}</div>
         <div className="text-gray-400 text-xs space-y-1 mb-6">
-          <div>획득 TP: {tycoonPoints}</div>
+          <div>획득 골드: {tycoonPoints}G</div>
           <div>학급 레벨: {CLASS_LEVELS[classLevel as keyof typeof CLASS_LEVELS]?.name}</div>
           <div>처리한 이벤트: {eventHistory.length}건</div>
         </div>
@@ -75,7 +75,7 @@ function CompletionScreen() {
         <div className="text-yellow-300 text-2xl pixel-text mb-4">학기 완료!</div>
         <div className="text-gray-300 text-sm mb-6">40주의 여정을 마쳤습니다.</div>
         <div className="text-gray-400 text-xs space-y-1 mb-6">
-          <div>총 TP: {tycoonPoints}</div>
+          <div>총 골드: {tycoonPoints}G</div>
           <div>최종 학급: {CLASS_LEVELS[classLevel as keyof typeof CLASS_LEVELS]?.name}</div>
           <div>처리한 이벤트: {eventHistory.length}건</div>
           <div>최종 신뢰도: {resources.studentTrust}</div>
