@@ -100,7 +100,7 @@ export function ChalkboardHUD() {
           return (
             <span
               key={bar.key}
-              className={`text-sm ${isDanger ? "chalk-text-red animate-resource-flash" : bar.cls}`}
+              className={`text-xs ${isDanger ? "chalk-text-red animate-resource-flash" : bar.cls}`}
             >
               {bar.label}<span className={trend.cls}>{trend.arrow}</span>{val}
             </span>

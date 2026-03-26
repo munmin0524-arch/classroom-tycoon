@@ -12,7 +12,8 @@ import { PhonePeek } from "@/components/game/PhoneUI";
 import { TutorialOverlay } from "@/components/game/TutorialOverlay";
 import { EventBanner } from "@/components/game/EventBanner";
 import { ChalkboardHUD } from "@/components/game/ChalkboardHUD";
-import { TeacherCharacter, FloorClickArea } from "@/components/game/TeacherCharacter";
+import { TeacherCharacter } from "@/components/game/TeacherCharacter";
+import { DPad } from "@/components/game/DPad";
 import { StudentTooltip, StudentProximityChecker } from "@/components/game/StudentTooltip";
 import { CLASS_LEVELS } from "@/types";
 import { GAMEOVER_MESSAGES } from "@/lib/game/engine";
@@ -94,9 +95,9 @@ export default function GamePage() {
     status, currentWeek, students, region, classLevel,
     activeEventStudentIds, showDialog, currentEvent,
     lastOutcome, dialogStudentId, isTransitioning,
-    purchasedInvestments,
+    purchasedInvestments, phoneOpen,
     initGame, completeTransition, triggerEvent,
-    submitDecision, dismissOutcome,
+    submitDecision, dismissOutcome, moveTeacher,
   } = useGameStore();
 
   useEffect(() => {
@@ -107,6 +108,15 @@ export default function GamePage() {
   }, [sessionId, searchParams, initGame]);
 
   const dialogStudent = dialogStudentId ? students.find((s) => s.id === dialogStudentId) : null;
+
+  // Handle floor clicks for teacher movement (replaces FloorClickArea)
+  const handleGameClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (showDialog || useGameStore.getState().zoomPhase !== "idle" || phoneOpen) return;
+    // Only move if clicking in the floor area (below 40% of screen height)
+    const h = window.innerHeight;
+    if (e.clientY < h * 0.40) return;
+    moveTeacher(e.clientX, e.clientY);
+  };
 
   return (
     <>
@@ -120,7 +130,11 @@ export default function GamePage() {
       </div>
 
       {/* Game container */}
-      <div className="game-container relative w-screen h-screen overflow-hidden" data-region={region}>
+      <div
+        className="game-container relative w-screen h-screen overflow-hidden cursor-crosshair"
+        data-region={region}
+        onClick={handleGameClick}
+      >
         {/* Layer 1: Background */}
         <PixelBackground region={region} classLevel={classLevel} purchasedInvestments={purchasedInvestments} />
 
@@ -136,9 +150,6 @@ export default function GamePage() {
         {/* Chalkboard HUD (on the blackboard, pointer-events-none) */}
         <ChalkboardHUD />
 
-        {/* Floor click area for teacher movement (z-15, above background) */}
-        <FloorClickArea />
-
         {/* Teacher character */}
         <TeacherCharacter />
         <StudentProximityChecker />
@@ -149,6 +160,9 @@ export default function GamePage() {
 
         {/* Action prompt (pointer-events-none) */}
         <ActionPrompt />
+
+        {/* D-Pad controller (bottom-left) */}
+        <DPad />
 
         {/* Phone peek system (right edge) */}
         <PhonePeek />
